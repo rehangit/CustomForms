@@ -1,0 +1,35 @@
+{
+  "name": "customforms",
+  "version": "0.0.1",
+  "description": "Library for Custom Forms ",
+  "main": "CustomFormsLib.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.0",
+    "clasp": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "clasp push --watch",
+    "build": "clasp push",
+    "deploy": "clasp push && clasp deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rehangit/CustomForms.git"
+  },
+  "keywords": [
+    "Google",
+    "Forms",
+    "Custom",
+    "Forms",
+    "Custom",
+    "Forms"
+  ],
+  "author": "Rehan Ahmad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rehangit/CustomForms/issues"
+  },
+  "homepage": "https://github.com/rehangit/CustomForms#readme"
+}
