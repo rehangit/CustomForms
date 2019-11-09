@@ -1,20 +1,35 @@
-function CustomForms_doPost(e: GoogleAppsScript.Events.DoPost) {
+function log(obj: any, func?: string) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const logs = ss.getSheetByName("logs");
-  if (logs) logs.appendRow([new Date(), "POST", JSON.stringify(e)]);
+  const str = obj instanceof String ? obj : JSON.stringify(obj);
+  if (logs) logs.appendRow([new Date(), "CustomForms:" + func, str]);
+}
 
-  const pathInfo: string = e.pathInfo;
-  if (pathInfo && pathInfo.length) {
-    const target = ss.getSheetByName(pathInfo) || ss.insertSheet(pathInfo);
+function CustomForms_doPost(e: GoogleAppsScript.Events.DoPost) {
+  log(e, "doPost");
+  const returnValue = [];
 
-    const obj = { Timestamp: new Date(), ...e.parameter };
+  const destSheetName: string =
+    (e.pathInfo && e.pathInfo.length && e.pathInfo) ||
+    (e.queryString.indexOf("_target=") >= 0 && e.parameter["_target"]);
+
+  log({ destSheetName }, "doPost");
+
+  if (destSheetName && destSheetName.length) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const target = ss.getSheetByName(destSheetName) || ss.insertSheet(destSheetName);
+
+    const contents = e.parameter;
+    log({ contents }, "doPost");
+
+    const obj = { Timestamp: new Date(), ...contents };
     const keys = Object.keys(obj);
     const firstRow = target
       .getDataRange()
       .getValues()[0]
       .map(v => v.toString().trim())
       .filter(Boolean);
-    const firstRowLength = (firstRow && firstRow.filter(Boolean).length) || 0;
+    const firstRowLength = (firstRow && firstRow.length) || 0;
     const lastRow = firstRow.map(() => "");
 
     const firstRowExtra = [];
@@ -31,17 +46,20 @@ function CustomForms_doPost(e: GoogleAppsScript.Events.DoPost) {
     if (firstRowExtra.length)
       target.getRange(1, firstRowLength + 1, 1, firstRowExtra.length).setValues([firstRowExtra]);
     target.appendRow(lastRow);
+
+    const values = target.getDataRange().getValues();
+    returnValue.push(...values.slice(-4));
+    returnValue[0] = values[0];
   }
 
-  return ContentService.createTextOutput(JSON.stringify(e.parameter));
+  return ContentService.createTextOutput(JSON.stringify(returnValue));
 }
 
 function CustomForms_doGet(e: GoogleAppsScript.Events.DoGet) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const logs = ss.getSheetByName("logs");
-  if (logs) logs.appendRow([new Date(), "GET", JSON.stringify(e)]);
+  log(e, "doGet");
 
-  const keyValues = ss.getSheetByName(e.parameter["source"]);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const keyValues = ss.getSheetByName(e.parameter["_source"]);
 
   const data = JSON.stringify(
     (keyValues &&
