@@ -1,8 +1,10 @@
 function log(obj: any, func?: string) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const logs = ss.getSheetByName("logs");
-  const str = obj instanceof String ? obj : JSON.stringify(obj);
-  if (logs) logs.appendRow([new Date(), "CustomForms:" + func, str]);
+  if (logs) {
+    const str = obj instanceof String ? obj : JSON.stringify(obj);
+    logs.appendRow([new Date(), "CustomForms:" + func, str]);
+  }
 }
 
 function CustomForms_doPost(e: GoogleAppsScript.Events.DoPost) {
@@ -10,17 +12,20 @@ function CustomForms_doPost(e: GoogleAppsScript.Events.DoPost) {
   const returnValue = [];
 
   const destSheetName: string =
-    (e.pathInfo && e.pathInfo.length && e.pathInfo) ||
-    (e.queryString.indexOf("_target=") >= 0 && e.parameter["_target"]);
+    e.pathInfo && e.pathInfo.length
+      ? e.pathInfo
+      : e.queryString.indexOf("_target=") >= 0
+      ? e.parameter["_target"]
+      : "";
 
-  log({ destSheetName }, "doPost");
+  // log({ destSheetName }, "doPost");
 
   if (destSheetName && destSheetName.length) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const target = ss.getSheetByName(destSheetName) || ss.insertSheet(destSheetName);
 
     const contents = e.parameter;
-    log({ contents }, "doPost");
+    // log({ contents }, "doPost");
 
     const obj = { Timestamp: new Date(), ...contents };
     const keys = Object.keys(obj);
