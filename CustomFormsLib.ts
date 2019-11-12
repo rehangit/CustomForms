@@ -24,11 +24,8 @@ function CustomForms_doPost(e: GoogleAppsScript.Events.DoPost) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const target = ss.getSheetByName(destSheetName) || ss.insertSheet(destSheetName);
 
-    const contents = e.parameter;
-    // log({ contents }, "doPost");
-
-    const obj = { Timestamp: new Date(), ...contents };
-    const keys = Object.keys(obj);
+    const obj = { Timestamp: new Date(), ...e.parameter };
+    const keys = Object.keys(obj).filter(k => k[0] !== "_");
     const firstRow = target
       .getDataRange()
       .getValues()[0]
